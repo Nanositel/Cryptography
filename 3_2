@@ -1,0 +1,55 @@
+import PySimpleGUI as sg
+import numpy
+
+from generator import Generator
+
+
+def encryptDecrypt(filepath, key):
+  generator = Generator(int(key))
+  gamma = generator.generate()
+
+  bytesFromFile = numpy.fromfile(filepath, dtype="uint8")
+  bits = numpy.unpackbits(bytesFromFile)
+
+  result = []
+  counter = 0
+
+  while counter < len(bits):
+    for i in range(counter, counter + len(gamma)):
+      if i >= len(bits):
+        break
+
+      result.append(bits[i] ^ gamma[i % len(gamma)])
+
+    counter += len(gamma)
+
+  resBytes = numpy.packbits(result)
+
+  with open(filepath, "wb") as file:
+    file.write(resBytes)
+
+  pass
+
+
+layout = [
+  [sg.Text('File'), sg.InputText(key=0), sg.FileBrowse()],
+  [sg.Text('Key (start register, number from 0 to 255)'), sg.InputText(size=(3,1), key=1)],
+  [sg.Radio('Encrypt', "RADIO1", key=2),
+  sg.Radio('Decrypt', "RADIO1", key=3)],
+  [sg.Output(size=(55, 5))],
+  [sg.Submit(), sg.Cancel()]
+]
+window = sg.Window('Lab3', layout)
+while True:
+  event, values = window.read()
+  if event in (None, 'Exit', 'Cancel'):
+    break
+  elif event == 'Submit':
+    filepath = values[0]
+    key = values[1]
+    if values[2]:
+      encryptDecrypt(values[0], key)      
+      print("Файл " + values[0] + " зашифрован!")
+    elif values[3]:
+      encryptDecrypt(values[0], key)
+      print("Файл " + values[0] + " расшифрован!")
