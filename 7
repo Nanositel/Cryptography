@@ -1,0 +1,32 @@
+#(e, N) (251,80851)
+# C 23313
+def gcd(num1: int, num2: int) -> int:
+    while num1 != 0 and num2 != 0:
+        if num1 >= num2:
+            num1 %= num2
+        else:
+            num2 %= num1
+    return num1 or num2
+
+
+def factorization(N: int) -> int:
+  for x in range(2, N, 1):
+    for y  in range(2, N, 1):
+      if pow(x, 2, N) == pow(y, 2, N) and x > y:
+        d: int = gcd(x - y, N)
+        if d != N and d != 1:
+          return d
+
+
+if __name__ == '__main__':
+  e: int = int(input('Введите e: '))
+  N: int = int(input('Введите N: '))
+  C: int = int(input('Введите С: '))
+
+  p: int = factorization(N)
+  q: int = N // p
+  
+  for i in range(1, (p - 1) * (q - 1), 1):
+    if ((i * e) % ((p - 1) * (q - 1))) == 1:
+      print(f'\nРезультат факторизации {N}: p - {p}, q - {q};\nЗакрытый ключ: {i};\nРасшифрованное сообщение: {pow(C, i, N)}')
+      break
