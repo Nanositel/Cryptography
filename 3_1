@@ -1,0 +1,43 @@
+class Generator:
+
+  def __init__(self, reg):
+    assert 0 <= reg <= 255
+    self.startReg = self.convertToBinary(reg)
+
+
+  def xor(self, s0, s2, s7):
+    newS0 = int(s7)^int(s2)^int(s0)
+    return newS0
+
+  
+  def generate(self):
+    sequence = []
+    reg = self.startReg
+
+    while True:
+      newReg = []
+      newReg.extend(reg[0:-1])
+      newReg.insert(0, self.xor(reg[0], reg[2], reg[7]))
+      sequence.append(reg[7])
+      reg = newReg
+
+      if reg == self.startReg:
+        break
+
+    return sequence
+
+
+  def convertToBinary(self, number):
+    binaryNumber = []
+
+    while number > 0:
+      binaryNumber.insert(0, number % 2)
+      number = number // 2
+    
+    if len(binaryNumber) < 8:
+      count = 8 - len(binaryNumber)
+      for _ in range(count):
+        binaryNumber.insert(0, 0)
+
+    return binaryNumber
+ 
