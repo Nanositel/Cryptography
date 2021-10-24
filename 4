@@ -1,0 +1,174 @@
+import random
+
+alphabet = {
+  'А': 10,
+  'Б': 11,
+  'В': 12,
+  'Г': 13,
+  'Д': 14,
+  'Е': 15,
+  'Ж': 16,
+  'З': 17,
+  'И': 18,
+  'Й': 19,
+  'К': 20,
+  'Л': 21,
+  'М': 22,
+  'Н': 23,
+  'О': 24,
+  'П': 25,
+  'Р': 26,
+  'С': 27,
+  'Т': 28,
+  'У': 29,
+  'Ф': 30,
+  'Х': 31,
+  'Ц': 32,
+  'Ч': 33,
+  'Ш': 34,
+  'Щ': 35,
+  'Ъ': 36,
+  'Ы': 37,
+  'Ь': 38,
+  'Э': 39,
+  'Ю': 40,
+  'Я': 41,
+  ' ': 99
+}
+
+p = 199
+q = 353
+n = p * q
+funcEuler = (p - 1) * (q - 1)
+
+
+def gcd(num1, num2):
+    while num1 != 0 and num2 != 0:
+        if num1 >= num2:
+            num1 %= num2
+        else:
+            num2 %= num1
+    return num1 or num2
+
+
+def calcStartZeros(block):
+  zeros = 0
+  for char in block:
+    if char == '0':
+      zeros += 1
+    else:
+      return zeros
+
+
+def insertZeros(block, count):
+  for _ in range(count):
+    block = '0' + block
+  
+  return block
+
+
+def convertToNumberString(string):
+  string = string.upper()
+  convertedString = ''
+  for char in string:
+    for key,value in alphabet.items():
+      if char == key:
+        convertedString += str(value)
+
+  return convertedString
+
+
+def convertFromNumberString(numberString):
+  decryptedString = ''
+  for char in [numberString[i:i+2] for i in range(0, len(numberString), 2)]:
+    for key,value in alphabet.items():
+      if char == str(value):
+        decryptedString += str(key)
+
+  return decryptedString
+
+
+def convertToBlocks(string):
+  blocks = []
+  block = ''
+  for i, char in enumerate(string):
+    block += char
+    if int(block) >= n:
+      block = block[:-1]
+      blocks.append(block) 
+      block = ''
+      block += char
+    if i == len(string) - 1:
+      blocks.append(block) 
+      block = ''
+
+  return blocks
+
+
+def encrypt(string):
+  blocks = convertToBlocks(convertToNumberString(string))
+
+  openKeys = []
+  while len(openKeys) < 3:
+    randInt = random.randint(3, funcEuler)
+    if gcd(randInt, funcEuler) == 1 and randInt not in openKeys:
+      openKeys.append(randInt)
+
+  print('Open keys', openKeys)
+  choosedOpenKey = input('Выберите открытый ключ: ')
+
+  encryptedBlocks = []
+  encryptedNumberString = ''
+  for block in blocks:
+    startZeros = calcStartZeros(block)
+    newBlock = str(int(block) ** openKeys[int(choosedOpenKey) - 1] % n)
+    newBlock = insertZeros(newBlock, startZeros)
+    encryptedBlocks.append(newBlock)
+    encryptedNumberString += newBlock + '.'
+
+  encryptedNumberString = encryptedNumberString[:-1]
+
+  return encryptedNumberString
+
+
+def decrypt(string, openKey):
+  blocks = string.split('.')
+
+  for number in range(0, funcEuler):
+    if (int(openKey) * number % funcEuler) == 1:
+      privateKey = number
+      break
+
+  decryptedBlocks = []
+  decryptedNumberString = ''
+  for block in blocks:
+    startZeros = calcStartZeros(block)
+    newBlock = str(int(block) ** privateKey % n)
+    newBlock = insertZeros(newBlock, startZeros)
+    decryptedBlocks.append(newBlock)
+    decryptedNumberString += newBlock
+
+  return convertFromNumberString(decryptedNumberString)
+
+
+if __name__ == '__main__':
+  while True:
+    print('\n1. Шифрование')
+    print('2. Расшифрование')
+    print('3. Выход')
+    menu = input('Выберите пункт меню: ')
+    print('\n')
+
+    if menu == '1':
+      text = input('Введите строку для шифрования: ')
+      encryptedText = encrypt(text)
+      print('Результат шифрования: ', encryptedText)
+
+    elif menu == '2':
+      text = input('Введите строку для расшифрования: ')
+      openKey = input('Введите открытый ключ: ')
+      decryptedText = decrypt(text, openKey)
+      print('Результат шифрования: ', decryptedText)
+
+    else:
+      break
