@@ -1,0 +1,72 @@
+# порождающий 11111
+from itertools import product
+import os
+
+def cls():
+    os.system('cls' if os.name=='nt' else 'clear')
+
+def multiplyPol(pol, lenG):
+  for _ in range(lenG):
+    pol += '0'
+  
+  return pol
+
+def xor(block, g):
+  res = ''
+  for i in range(len(g)):
+    res += str(int(block[i]) ^ int(g[i]))
+
+  return str(int(res))
+
+def calcCRC(pol, g):
+  crc = ''
+  for bit in pol:    
+    crc += bit
+
+    if len(str(int(crc))) == len(g):
+      crc = xor(str(int(crc)), g)
+  
+  return str(int(crc))
+
+if __name__ == '__main__':
+
+  while True:
+    cls()
+    print('1. Найти хэш-функцию')
+    print('2. Найти все коллизии')
+    print('Нажмите любую другую кнопку, чтобы выйти')
+    key = input()
+
+    if key == '1':
+      g = input('\nВведите порождающий многочлен: ')
+
+      pol = input('Введите входное сообщение: ')
+      crc = calcCRC(multiplyPol(pol, len(g)), g)
+
+      print('Хэш:', crc)
+
+      input('Нажмите любую кнопку, чтобы продолжить')
+
+    elif key == '2':
+      g = input('\nВведите порождающий многочлен: ')
+
+      polynoms = list(map(lambda x: ''.join(x), list(product(['0', '1'], repeat = 8))))
+
+      collisions = {}
+      for polynom in polynoms:
+        crc = calcCRC(multiplyPol(polynom, len(g)), g)
+
+        if crc not in collisions.keys():
+          collisions[crc] = [polynom]
+        elif crc in collisions.keys():
+          collisions[crc].append(polynom)
+
+      for crc in collisions.keys():
+        print(f'\nХэш {crc} у полиномов (кол-во {len(collisions[crc])}):')
+        for polynom in collisions[crc]:
+          print(polynom)
+
+      input('Нажмите любую кнопку, чтобы продолжить')
+
+    else:
+      break
